@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../RF_PP/include/cJSON.h
+stddef.h
+-
+
+/home/gautham/Files/CMU/Spring2019/24783_project/trials_2/project/Path_Planning/RF_PP/src/cJSON.c
+string.h
+-
+stdio.h
+-
+math.h
+-
+stdlib.h
+-
+float.h
+-
+limits.h
+-
+ctype.h
+-
+locale.h
+-
+cJSON.h
+/home/gautham/Files/CMU/Spring2019/24783_project/trials_2/project/Path_Planning/RF_PP/src/cJSON.h
+

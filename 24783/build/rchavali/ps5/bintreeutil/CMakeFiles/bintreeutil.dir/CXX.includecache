@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aditya/24783/src/rchavali/ps5/bintreeutil/bintree.cpp
+bintree.h
+/home/aditya/24783/src/rchavali/ps5/bintreeutil/bintree.h
+
+/home/aditya/24783/src/rchavali/ps5/bintreeutil/bintree.h
+stdio.h
+-
+cstddef
+-
+cmath
+-
+

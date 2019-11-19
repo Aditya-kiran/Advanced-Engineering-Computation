@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmeshlattice.a  CMakeFiles/meshlattice.dir/meshlattice.cpp.o
+/usr/bin/ranlib libmeshlattice.a

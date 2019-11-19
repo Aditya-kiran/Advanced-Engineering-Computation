@@ -1,0 +1,2 @@
+/usr/bin/ar qc libpolygonalmesh.a  CMakeFiles/polygonalmesh.dir/polygonalmesh.cpp.o CMakeFiles/polygonalmesh.dir/polygonalmeshio.cpp.o
+/usr/bin/ranlib libpolygonalmesh.a

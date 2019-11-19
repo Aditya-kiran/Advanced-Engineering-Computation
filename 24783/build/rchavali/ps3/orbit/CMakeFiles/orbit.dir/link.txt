@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/orbit.dir/main.cpp.o  -o orbit ../../../public/src/fslazywindow/src/libfslazywindow.a ../../../public/src/fssimplewindow/src/libfssimplewindow.a -lGL -lGLU -lX11 -lpthread -static-libstdc++ -static-libgcc 

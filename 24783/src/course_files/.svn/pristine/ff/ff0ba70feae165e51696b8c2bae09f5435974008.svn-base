@@ -1,0 +1,5 @@
+#include "simplebitmap.h"
+#include "yspng.h"
+#include "yspngenc.h"
+
+

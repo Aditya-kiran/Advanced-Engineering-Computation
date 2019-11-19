@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/d77Server.dir/d77server.cpp.o CMakeFiles/d77Server.dir/clientbin.cpp.o CMakeFiles/d77Server.dir/diskimg.cpp.o  -o ../../../../../exe/d77Server ../lib/yscomport/libcomportlib.a ../disk2tape/libdisk2tapelib.a ../d77/libd77lib.a ../lib/libfm7lib.a -lpthread 

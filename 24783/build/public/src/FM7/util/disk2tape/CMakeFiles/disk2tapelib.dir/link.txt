@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdisk2tapelib.a  CMakeFiles/disk2tapelib.dir/formatdata.cpp.o
+/usr/bin/ranlib libdisk2tapelib.a

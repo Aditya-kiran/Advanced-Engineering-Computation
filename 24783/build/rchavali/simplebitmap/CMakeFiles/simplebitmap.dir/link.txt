@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsimplebitmap.a  CMakeFiles/simplebitmap.dir/simplebitmap.cpp.o CMakeFiles/simplebitmap.dir/yspng.cpp.o CMakeFiles/simplebitmap.dir/yspngenc.cpp.o
+/usr/bin/ranlib libsimplebitmap.a

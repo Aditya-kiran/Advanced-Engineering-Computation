@@ -1,0 +1,7 @@
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+cmake_minimum_required(VERSION 3.5)
+
+add_subdirectory(hiredis)
+add_subdirectory(3d-cpp)
+add_subdirectory(flythrough)

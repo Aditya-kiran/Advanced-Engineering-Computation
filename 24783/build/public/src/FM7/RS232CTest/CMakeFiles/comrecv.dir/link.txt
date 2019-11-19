@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/comrecv.dir/comrecv.cpp.o  -o comrecv ../util/lib/yscomport/libcomportlib.a -lpthread 

@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/ps6_1.dir/main.cpp.o  -o ps6_1 ../../../public/src/fslazywindow/src/libfslazywindow.a ../naca/libnaca4digit.a ../polygonalmesh/libpolygonalmesh.a ../../../public/src/fssimplewindow/src/libfssimplewindow.a -lGL -lGLU -lX11 ../../../public/src/ysclass/src/libysclass.a -lpthread -static-libstdc++ -static-libgcc 

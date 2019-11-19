@@ -1,0 +1,2 @@
+/usr/bin/ar qc libretromap_kernel_gl2.a  CMakeFiles/retromap_kernel_gl2.dir/retromap_data_render.cpp.o
+/usr/bin/ranlib libretromap_kernel_gl2.a

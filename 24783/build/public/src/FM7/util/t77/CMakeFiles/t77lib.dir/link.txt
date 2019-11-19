@@ -1,0 +1,2 @@
+/usr/bin/ar qc libt77lib.a  CMakeFiles/t77lib.dir/t77.cpp.o
+/usr/bin/ranlib libt77lib.a

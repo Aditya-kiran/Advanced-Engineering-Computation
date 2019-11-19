@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wl,--no-as-needed  -rdynamic CMakeFiles/ysinvertbmp.dir/ysinvertbmp.cpp.o  -o ../../../../exe/ysinvertbmp ../../ysclass/src/libysclass.a ../src/libysbitmap.a -lpthread -static-libstdc++ -static-libgcc 

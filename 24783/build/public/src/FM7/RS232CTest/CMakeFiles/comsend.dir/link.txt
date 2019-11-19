@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/comsend.dir/comsend.cpp.o  -o comsend ../util/lib/yscomport/libcomportlib.a -lpthread 

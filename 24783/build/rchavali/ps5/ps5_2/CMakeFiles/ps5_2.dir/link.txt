@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/ps5_2.dir/main.cpp.o  -o ps5_2 ../../../public/src/fslazywindow/src/libfslazywindow.a ../../../public/src/ysbitmapfont/src/libysbitmapfont.a ../bintreeutil/libbintreeutil.a ../../../public/src/fssimplewindow/src/libfssimplewindow.a -lGL -lGLU -lX11 ../../../public/src/ysgl/src/libysgl.a -lpthread -static-libstdc++ -static-libgcc 

@@ -1,0 +1,4 @@
+add_executable(ps5_1 MACOSX_BUNDLE main.cpp)
+target_link_libraries(ps5_1 fslazywindow)
+target_link_libraries(ps5_1 ysbitmapfont)
+target_link_libraries(ps5_1 bintreeutil)

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfm7lib.a  CMakeFiles/fm7lib.dir/fm7lib.cpp.o CMakeFiles/fm7lib.dir/cpplib.cpp.o
+/usr/bin/ranlib libfm7lib.a

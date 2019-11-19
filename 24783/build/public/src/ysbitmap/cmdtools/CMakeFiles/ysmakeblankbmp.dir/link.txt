@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wl,--no-as-needed  -rdynamic CMakeFiles/ysmakeblankbmp.dir/ysmakeblankbmp.cpp.o  -o ../../../../exe/ysmakeblankbmp ../../ysclass/src/libysclass.a ../src/libysbitmap.a -lpthread -static-libstdc++ -static-libgcc 

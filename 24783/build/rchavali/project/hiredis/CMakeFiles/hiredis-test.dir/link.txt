@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/hiredis-test.dir/test.c.o  -o hiredis-test -Wl,-rpath,/home/aditya/24783/build/rchavali/project/hiredis libhiredis.so.0.14 

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aditya/24783/src/public/src/yssimplesound/src/linux_alsa/../yssimplesound.h
+vector
+-
+memory
+-
+
+/home/aditya/24783/src/public/src/yssimplesound/src/linux_alsa/yssimplesound_linux_alsa.cpp
+stdio.h
+-
+vector
+-
+yssimplesound.h
+/home/aditya/24783/src/public/src/yssimplesound/src/linux_alsa/yssimplesound.h
+alsa/asoundlib.h
+-
+

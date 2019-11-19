@@ -1,0 +1,61 @@
+template <class KeyClass,class ValueClass>
+class BinaryTree
+{
+protected:
+	class Node;
+public:
+	class NodeHandle
+	{
+	friend BinaryTree <KeyClass,ValueClass>;
+	private:
+		Node *ptr;
+	public:
+		inline void Nullify(void);
+		inline bool IsNull(void) const;
+		inline bool IsNotNull(void) const;
+		inline bool operator==(NodeHandle hd) const;
+		inline bool operator!=(NodeHandle hd) const;
+		inline bool operator==(std::nullptr_t) const;
+		inline bool operator!=(std::nullptr_t) const;
+	};
+protected:
+	Node *GetNode(NodeHandle ndHd);
+	const Node *GetNode(NodeHandle ndHd) const;
+	static NodeHandle MakeHandle(Node *nodePtr);
+private:
+	Node *root;
+	long long int nElem;
+
+public:
+	BinaryTree();
+	~BinaryTree();
+	void CleanUp(void);
+
+	static NodeHandle Null(void);
+	NodeHandle RootNode(void) const;
+	NodeHandle Left(NodeHandle ndHd) const;
+	NodeHandle Up(NodeHandle ndHd) const;
+	NodeHandle Right(NodeHandle ndHd) const;
+
+	long long int GetN(void) const;
+	const KeyClass &GetKey(NodeHandle ndHd) const;
+	ValueClass &GetValue(NodeHandle ndHd);
+	const ValueClass &GetValue(NodeHandle ndHd) const;
+	NodeHandle FindNode(cosnt KeyClass &key) const;
+	bool IsKeyIncluded(const KeyClass &key) const;
+
+	NodeHandle Insert(const KeyClass &key,const ValueClass &value);
+
+	// (1) ~BinaryTree() and CleanUp
+
+	// (2) Prevent Copy
+
+	// (3) MoveFrom
+
+	NodeHandle FindNext(NodeHandle ndHd) const;
+
+	// You implement the following in the assignment.
+	NodeHandle Last(void) const;  // Do it in the assignment.
+	NodeHandle FindPrev(NodeHandle ndHd) const;  // Do it in the assignment.
+};
+

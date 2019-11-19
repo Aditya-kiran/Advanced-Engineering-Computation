@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/disk2tape.dir/main.cpp.o CMakeFiles/disk2tape.dir/formatm.cpp.o CMakeFiles/disk2tape.dir/uraram.cpp.o CMakeFiles/disk2tape.dir/dskwrite.cpp.o CMakeFiles/disk2tape.dir/tommr.cpp.o  -o ../../../../../exe/disk2tape ../lib/libfm7lib.a libdisk2tapelib.a ../t77/libt77lib.a ../d77/libd77lib.a ../lib/libfm7lib.a 

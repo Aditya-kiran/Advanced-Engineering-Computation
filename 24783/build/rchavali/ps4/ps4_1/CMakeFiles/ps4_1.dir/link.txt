@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/ps4_1.dir/main.cpp.o  -o ps4_1 ../../simplebitmap/libsimplebitmap.a ../../hashutil/libhashutil.a ../../simplebitmap/libsimplebitmap.a 

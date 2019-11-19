@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/rs232ctfr.dir/rs232ctfr.cpp.o  -o ../../../../../exe/rs232ctfr ../lib/libfm7lib.a ../t77/libt77lib.a ../d77/libd77lib.a ../lib/libfm7lib.a 

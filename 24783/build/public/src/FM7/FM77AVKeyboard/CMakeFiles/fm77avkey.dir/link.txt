@@ -1,0 +1,2 @@
+/usr/bin/ar qc libfm77avkey.a  CMakeFiles/fm77avkey.dir/fm77avkey.cpp.o CMakeFiles/fm77avkey.dir/fm77avkeymap.cpp.o CMakeFiles/fm77avkey.dir/fm77avrkana.cpp.o
+/usr/bin/ranlib libfm77avkey.a

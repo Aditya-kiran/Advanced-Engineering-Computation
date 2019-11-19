@@ -1,0 +1,8 @@
+#include <stdio.h>
+
+int main(void)
+{
+	const int nx=100;
+	printf("%d\n",nx);
+}
+

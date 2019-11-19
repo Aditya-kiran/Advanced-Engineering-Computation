@@ -1,0 +1,2 @@
+/usr/bin/ar qc libd77lib.a  CMakeFiles/d77lib.dir/d77.cpp.o CMakeFiles/d77lib.dir/d77filesystem.cpp.o
+/usr/bin/ranlib libd77lib.a

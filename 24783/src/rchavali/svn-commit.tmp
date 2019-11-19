@@ -1,0 +1,19 @@
+adding ps6
+--This line, and those below, will be ignored--
+
+A    ps6
+A    ps6/naca
+A    ps6/naca/CMakeLists.txt
+A    ps6/naca/naca4digit.cpp
+A    ps6/naca/naca4digit.h
+A    ps6/polygonalmesh
+A    ps6/polygonalmesh/CMakeLists.txt
+A    ps6/polygonalmesh/polygonalmesh.cpp
+A    ps6/polygonalmesh/polygonalmesh.h
+A    ps6/polygonalmesh/polygonalmeshio.cpp
+A    ps6/ps6_1
+A    ps6/ps6_1/CMakeLists.txt
+A    ps6/ps6_1/main.cpp
+A    ps6/ps6_2
+A    ps6/ps6_2/CMakeLists.txt
+A    ps6/ps6_2/main.cpp

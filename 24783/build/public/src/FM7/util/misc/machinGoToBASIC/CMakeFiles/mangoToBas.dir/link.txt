@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/mangoToBas.dir/main.cpp.o  -o ../../../../../../exe/mangoToBas ../../lib/libfm7lib.a 

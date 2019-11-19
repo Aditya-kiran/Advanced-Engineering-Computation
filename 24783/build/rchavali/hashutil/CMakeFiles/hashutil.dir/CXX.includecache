@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aditya/24783/src/rchavali/hashutil/hash.cpp
+hashset.h
+/home/aditya/24783/src/rchavali/hashutil/hashset.h
+hashtable.h
+/home/aditya/24783/src/rchavali/hashutil/hashtable.h
+simplebitmap.h
+/home/aditya/24783/src/rchavali/hashutil/simplebitmap.h
+
+/home/aditya/24783/src/rchavali/hashutil/hashbase.h
+vector
+-
+
+/home/aditya/24783/src/rchavali/hashutil/hashset.h
+vector
+-
+stdio.h
+-
+hashbase.h
+/home/aditya/24783/src/rchavali/hashutil/hashbase.h
+
+/home/aditya/24783/src/rchavali/hashutil/hashtable.h
+vector
+-
+stdio.h
+-
+hashbase.h
+/home/aditya/24783/src/rchavali/hashutil/hashbase.h
+
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmap.h
+stdio.h
+-
+simplebitmaptemplate.h
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmaptemplate.h
+
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmaptemplate.h
+

@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wl,--no-as-needed  -rdynamic CMakeFiles/ysresizebmp.dir/ysresizebmp.cpp.o  -o ../../../../exe/ysresizebmp ../../ysclass/src/libysclass.a ../src/libysbitmap.a -lpthread -static-libstdc++ -static-libgcc 

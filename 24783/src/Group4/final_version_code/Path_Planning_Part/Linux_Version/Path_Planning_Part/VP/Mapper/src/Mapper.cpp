@@ -1,0 +1,592 @@
+#include "Mapper.h"
+#include <cstring>
+
+Mapper::Mapper() {
+    ctx = redisConnect("127.0.0.1", 6379);
+    if(ctx->err)
+    {
+        std::cout<<"No connection with ctx_get"<<std::endl;
+    } else {
+        std::cout << "Successfully connected to Redis!" << std::endl;
+    }
+}
+
+Mapper::~Mapper() {
+
+}
+
+std::string Mapper::int2str(int num)
+{
+    std::string c_id;
+    std::stringstream ss;
+    ss<<num;
+    ss>>c_id;
+    return c_id;
+}
+
+int Mapper::str2int(std::string num)
+{
+    int c_id;
+    std::stringstream ss;
+    ss<<num;
+    ss>>c_id;
+    return c_id;
+}
+
+std::string Mapper::double2str(double num)
+{
+    std::string c_id;
+    std::stringstream ss;
+    ss << std::setprecision(17) <<num;
+    ss>>c_id;
+    return c_id;
+}
+
+
+double Mapper::str2double(std::string num)
+{
+    double c_id;
+    std::stringstream ss;
+    ss<< std::setprecision(17) << num;
+    ss>> std::setprecision(17) >> c_id;
+    return c_id;
+}
+
+
+std::vector<string> Mapper::split(const string& str, const string& delim) {
+    std::vector<string> res;
+    if("" == str) return res;
+    char * strs = new char[str.length() + 1];
+    strcpy(strs, str.c_str());
+
+    char * d = new char[delim.length() + 1];
+    strcpy(d, delim.c_str());
+
+    char *p = strtok(strs, d);
+    while(p) {
+        string s = p;
+        res.push_back(s);
+        p = strtok(NULL, d);
+    }
+    return res;
+}
+
+
+void Mapper::ReadMap()
+{
+    MapReader myMapReader;
+    std::vector<physical_node> physical_nodes = myMapReader.readPhysicalNodes();
+    std::vector<physical_link> physical_links = myMapReader.readPhysicalLinks();
+    //std::vector<logical_node> logical_nodes = myMapReader.readLogicalNodes();
+
+    std::vector<logical_node> logical_nodes;
+
+    for (int i = 0; i < physical_nodes.size(); i++) {
+        logical_node temp;
+        temp.adjacent_nodes = physical_nodes[i].phy_adjacent_nodes;
+        temp.logical_node_id = physical_nodes[i].physical_node_id;
+        temp.physical_node_id = physical_nodes[i].physical_node_id;
+        logical_nodes.push_back(temp);
+    }
+
+    std::vector<XOY> temp_node_list;
+    for (int i = 0; i < logical_nodes.size(); i++) {
+        XOY temp_node;
+        temp_node.x = physical_nodes[logical_nodes[i].physical_node_id].x;
+        temp_node.y = physical_nodes[logical_nodes[i].physical_node_id].y;
+        temp_node_list.push_back(temp_node);
+    }
+    this->node_list = temp_node_list;
+
+    std::vector<std::vector<int> > temp_neighbour_node_list;
+    for (int i = 0; i < logical_nodes.size(); i++) {
+        temp_neighbour_node_list.push_back(logical_nodes[i].adjacent_nodes);
+    }
+    this->neighbour_node_list = temp_neighbour_node_list;
+
+    std::vector<std::vector<double> > temp_travel_time_list;
+    for (int i = 0; i < logical_nodes.size(); i++) {
+        std::vector<double> travel_times;
+        for (int j = 0; j < logical_nodes[i].adjacent_nodes.size(); j++) {
+            int current_physical_node_id = logical_nodes[i].physical_node_id;
+            int other_physical_node_id = logical_nodes[logical_nodes[i].adjacent_nodes[j]].physical_node_id;
+            double x0 = physical_nodes[current_physical_node_id].x;
+            double y0 = physical_nodes[current_physical_node_id].y;
+            double x1 = physical_nodes[other_physical_node_id].x;
+            double y1 = physical_nodes[other_physical_node_id].y;
+            travel_times.push_back(sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)));
+        }
+        temp_travel_time_list.push_back(travel_times);
+    }
+    this->travel_time_list = temp_travel_time_list;
+
+    //TODO this is not good, change after pratik generate the 2-layer map
+    std::vector<std::vector<int> > temp_lock_node_list;
+    for (int i = 0; i < physical_nodes.size(); i++) {
+        temp_lock_node_list.push_back(physical_nodes[i].lock_nodes);
+    }
+    this->lock_node_list = temp_lock_node_list;
+
+    std::vector<std::vector<int> > temp_link_lock_node_list;
+    for (int i = 0; i < physical_links.size(); i++) {
+        temp_link_lock_node_list.push_back(physical_links[i].lock_nodes);
+    }
+    this->link_lock_node_list = temp_link_lock_node_list;
+
+    map<int, map<int, int>> temp_link_id_map;
+    for (int i = 0; i < physical_links.size(); i++) {
+        map<int, map<int, int>>::iterator it;
+        it = temp_link_id_map.find(physical_links[i].from_physical_node);
+        if (it == temp_link_id_map.end()) {
+            map<int, int> temp;
+            temp[physical_links[i].to_physical_node] = i;
+            temp_link_id_map[physical_links[i].from_physical_node] = temp;
+        } else {
+            temp_link_id_map[physical_links[i].from_physical_node][physical_links[i].to_physical_node] = i;
+        }
+    }
+    this->link_id_map = temp_link_id_map;
+
+    return;
+}
+
+
+route Mapper::RetriveRobotPath(int robot_id) {
+
+    route result;
+
+    std::string vps_str;
+    std::string wts_str;
+    std::string tts_str;
+    std::string arr_and_depar_time_str;
+
+    redisReply *reply_vps = (redisReply *)redisCommand(ctx, "HGET robot_vpoint %d", robot_id);
+    vps_str = reply_vps->str;
+    freeReplyObject(reply_vps);
+    redisReply *reply_wts = (redisReply *)redisCommand(ctx, "HGET robot_waittime %d", robot_id);
+    wts_str = reply_wts->str;
+    freeReplyObject(reply_wts);
+    redisReply *reply_tts = (redisReply *)redisCommand(ctx, "HGET robot_traveltime %d", robot_id);
+    tts_str = reply_tts->str;
+    freeReplyObject(reply_tts);
+    redisReply *reply_arr_and_depar_time = (redisReply *)redisCommand(ctx, "HGET robot_arr_and_depar_time %d", robot_id);
+    arr_and_depar_time_str = reply_arr_and_depar_time->str;
+    freeReplyObject(reply_arr_and_depar_time);
+
+    std::vector<int> vps;
+    std::vector<double> wts;
+    std::vector<double> tts;
+    std::vector<std::pair<double, double>> arr_and_depar_time;
+    std::vector<string> temp_vps = this->split(vps_str, "|");
+    std::vector<string> temp_wts = this->split(wts_str, "|");
+    std::vector<string> temp_tts = this->split(tts_str, "|");
+    std::vector<string> temp_arr_and_depar_time = this->split(arr_and_depar_time_str, "|");
+
+    for (int i = 0 ; i < temp_vps.size(); i++) {
+        vps.push_back(this->str2int(temp_vps[i]));
+    }
+
+    for (int i = 0; i < temp_wts.size(); i++) {
+        wts.push_back(this->str2double(temp_wts[i]));
+    }
+
+    for (int i = 0; i < temp_tts.size(); i++) {
+        tts.push_back(this->str2double(temp_tts[i]));
+    }
+
+    for (int i = 0; i < temp_arr_and_depar_time.size(); i++) {
+        std::pair<double, double> temp_pair;
+        std::vector<string> temp_string = this->split(temp_arr_and_depar_time[i], ",");
+        temp_pair.first = this->str2double(temp_string[0]);
+        temp_pair.second = this->str2double(temp_string[1]);
+        arr_and_depar_time.push_back(temp_pair);
+    }
+    result.arr_and_depar_time = arr_and_depar_time;
+    result.arr_and_depar_time_str = arr_and_depar_time_str;
+    result.tts = tts;
+    result.vps = vps;
+    result.wts = wts;
+    result.tts_str = tts_str;
+    result.wts_str = wts_str;
+    result.vps_str = vps_str;
+
+    return result;
+}
+
+
+void Mapper::GetRobotPositions() {
+    std::vector<int> positions;
+    for (int i = 1; i <= this->robot_number; i++) {
+        redisReply * reply = (redisReply *) redisCommand(ctx, "HGET robot_position %d", i);
+        int tempPos = std::stoi(reply->str);
+        positions.push_back(tempPos);
+        freeReplyObject(reply);
+    }
+    this->robot_positions = positions;
+}
+
+void Mapper::Lock4Node(int robot_id, int node_id) {
+    std::vector<int> neighbours = this->lock_node_list[node_id];
+    neighbours.push_back(node_id);
+    for (int i = 0; i < neighbours.size(); i++) {
+        this->occupied[neighbours[i]] = robot_id;
+    }
+    return;
+}
+
+void Mapper::InitArriveTimes() {
+    std::vector<std::vector<double>> new_robots_arrive_times;
+    for (int i = 0 ; i < this->neighbour_node_list.size(); i++) {
+        std::vector<double> temp_arrive_time;
+        for (int i = 0; i < this->robot_number; i++) {
+            temp_arrive_time.push_back(-1);
+        }
+        new_robots_arrive_times.push_back(temp_arrive_time);
+    }
+    this->robots_arrive_times = new_robots_arrive_times;
+    return;
+}
+
+void Mapper::FillArriveTimes() {
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> remaining_vps = this->robots_remaining_vps[i];
+        std::vector<double> remaining_wts = this->robots_remaining_wts[i];
+        std::vector<double> remaining_tts = this->robots_remaining_tts[i];
+        std::vector<std::pair<double, double>> remaining_arr_and_depar_time = this->robots_remaining_arr_and_depar_times[i];
+
+        double arrive_time = 0;
+        for (int j = 0; j < remaining_vps.size(); j++) {
+            int currPos = remaining_vps[j];
+            std::vector<int> locks = this->lock_node_list[currPos];
+
+            arrive_time = remaining_arr_and_depar_time[j].first;
+            for (int k = 0 ; k < locks.size(); k++) {
+                if (this->robots_arrive_times[locks[k]][i] != -1) {
+                    this->robots_arrive_times[locks[k]][i] = min(arrive_time, this->robots_arrive_times[locks[k]][i]);
+                } else {
+                    this->robots_arrive_times[locks[k]][i] = arrive_time;
+                }
+            }
+
+            //arrive_time += remaining_tts[j];
+            //arrive_time += remaining_wts[j];
+        }
+    }
+    return;
+}
+
+bool Mapper::isConflict(std::vector<int> a, std::vector<int> b) {
+    for (int i = 0; i < a.size(); i++) {
+        for (int j = 0; j < b.size(); j++) {
+            if (a[i] == b[j]) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Mapper::needToStop(int robot_id, int node_id) {
+    std::vector<int> locks = this->lock_node_list[node_id];
+
+    for (int i = 0; i < this->robots_remaining_vps.size(); i++) {
+        if (robot_id != i + 1) {
+            std::vector<int> otherLocks = this->lock_node_list[this->robot_positions[i]];
+            for (int j = 0; j < locks.size(); j++) {
+                for (int k = 0; k < otherLocks.size(); k++) {
+                    if (locks[j] == otherLocks[k]) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    //locks.push_back(node_id);
+    for (int i = 0; i < locks.size(); i++) {
+        int currPos = locks[i];
+        std::vector<double> arriveTimes = this->robots_arrive_times[currPos];
+        double currArriveTime = arriveTimes[robot_id - 1];
+        for (int j = 0; j < arriveTimes.size(); j++) {
+            if (arriveTimes[j] == -1 || j == robot_id - 1) {
+                continue;
+            }
+            if (arriveTimes[j] < currArriveTime) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Mapper::needToStopByCross(int robot_id, int curr_node_id, int previous_node_id) {
+    XOY a, b, c, d;
+    a = this->node_list[curr_node_id];
+    b = this->node_list[previous_node_id];
+    int tar;
+    int oar;
+    for (int i = 0; i < this->robot_number; i++) {
+        if (i == robot_id - 1) {
+            continue;
+        }
+        for (int j = 0; j < this->robots_remaining_vps[i].size() - 1; j ++) {
+            d = this->node_list[this->robots_remaining_vps[i][j]];
+            c = this->node_list[this->robots_remaining_vps[i][j + 1]];
+            if (!this->isCross(a,b,c,d)) {
+                continue;
+            }
+            double thisArrTime = this->robots_arrive_times[previous_node_id][robot_id - 1];
+            double otherArrTime = this->robots_arrive_times[this->robots_remaining_vps[i][j]][i];
+            tar = thisArrTime;
+            oar = otherArrTime;
+            if (thisArrTime > otherArrTime) {
+                return true;
+            }
+            if (thisArrTime == otherArrTime) {
+                std::vector<int> otherLocks = this->lock_node_list[this->robots_remaining_vps[i][j]];
+                std::vector<int> thisLocks = this->lock_node_list[previous_node_id];
+                std::vector<int> this_curr_node_locks = this->lock_node_list[curr_node_id];
+                std::vector<int> other_curr_node_locks = this->lock_node_list[this->robots_remaining_vps[i][j + 1]];
+                if (!isConflict(this_curr_node_locks, otherLocks) && !isConflict(other_curr_node_locks, thisLocks)) {
+                    if (this->randomNumber % 2 == 0) {
+                        if (robot_id < i + 1) {
+                           return true;
+                        }
+                    } else {
+                        if (robot_id > i + 1) {
+                           return true;
+                        }
+                    }
+
+                } else if (!isConflict(this_curr_node_locks, otherLocks) && isConflict(other_curr_node_locks, thisLocks)) {
+
+                } else if (isConflict(this_curr_node_locks, otherLocks) && !isConflict(other_curr_node_locks, thisLocks)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+double Mapper::mult(XOY a, XOY b, XOY c)
+{
+    return (a.x-c.x)*(b.y-c.y)-(b.x-c.x)*(a.y-c.y);
+}
+
+bool Mapper::intersect(XOY aa, XOY bb, XOY cc, XOY dd)
+{
+    if ( max(aa.x, bb.x)<min(cc.x, dd.x) )
+    {
+        return false;
+    }
+    if ( max(aa.y, bb.y)<min(cc.y, dd.y) )
+    {
+        return false;
+    }
+    if ( max(cc.x, dd.x)<min(aa.x, bb.x) )
+    {
+        return false;
+    }
+    if ( max(cc.y, dd.y)<min(aa.y, bb.y) )
+    {
+        return false;
+    }
+    if ( mult(cc, bb, aa)*mult(bb, dd, aa)<0 )
+    {
+        return false;
+    }
+    if ( mult(aa, dd, cc)*mult(dd, bb, cc)<0 )
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Mapper::isCross(XOY a, XOY b, XOY c, XOY d) {
+//    double dx_cd = abs(c.x - d.x);
+//    double dy_cd = abs(c.y - d.y);
+//    double dx_ab = abs(a.x - b.x);
+//    double dy_ab = abs(a.y - b.y);
+
+
+    if ((abs(c.x - d.x) < 2 && abs(c.y - d.y) < 2) || (abs(a.x - b.x) < 2 && abs(a.y - b.y) < 2)) {
+        return false;
+    }
+//    if(min(a.x,b.x)<=max(c.x,d.x) && min(c.y,d.y)<=max(a.y,b.y)&&min(c.x,d.x)<=max(a.x,b.x) && min(a.y,b.y)<=max(c.y,d.y)) {
+//        return true;
+//    }
+    return this->intersect(a, b, c, d);
+}
+
+void Mapper::cut() {
+    std::vector<int> new_occupied;
+    for (int i = 0; i < this->neighbour_node_list.size(); i++) {
+        new_occupied.push_back(0);
+    }
+    this->occupied = new_occupied;
+    this->GetRobotPositions();
+
+    std::vector<route> new_routes;
+    for (int i = 0; i < this->robot_number; i++) {
+        route tempRoute = this->RetriveRobotPath(i + 1);
+        new_routes.push_back(tempRoute);
+    }
+    this->robots_route = new_routes;
+
+    std::vector<std::vector<int> > new_robot_cFuns;
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> tempCFun;
+        tempCFun.push_back(this->robot_positions[i]);
+        new_robot_cFuns.push_back(tempCFun);
+    }
+    this->robots_cFun = new_robot_cFuns;
+
+    //lock current positions
+    for (int i = 0; i < this->robot_number; i++) {
+        int currPos = this->robot_positions[i];
+        this->Lock4Node(i + 1, currPos);
+    }
+
+    //get remaining vps
+    std::vector<std::vector<int> > temp_remaining_vpses;
+    std::vector<std::vector<double> > temp_remaining_wtses;
+    std::vector<std::vector<double> > temp_remaining_ttses;
+    std::vector<std::vector<std::pair<double, double>>> temp_remaining_arr_and_depar_times;
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> temp_remaining_vps;
+        std::vector<double> temp_remaining_wts;
+        std::vector<double> temp_remaining_tts;
+        std::vector<std::pair<double, double>> temp_remaining_arr_and_depar_time;
+        int currPos = this->robot_positions[i];
+        int startIndex = -1;
+        for (int j = 0; j < this->robots_route[i].vps.size(); j++) {
+            if (this->robots_route[i].vps[j] == currPos) {
+                startIndex = j;
+                break;
+            }
+        }
+        for (int j = startIndex; j < this->robots_route[i].vps.size(); j++) {
+            temp_remaining_vps.push_back(this->robots_route[i].vps[j]);
+            temp_remaining_wts.push_back(this->robots_route[i].wts[j]);
+            temp_remaining_tts.push_back(this->robots_route[i].tts[j]);
+            temp_remaining_arr_and_depar_time.push_back(this->robots_route[i].arr_and_depar_time[j]);
+        }
+        temp_remaining_vpses.push_back(temp_remaining_vps);
+        temp_remaining_wtses.push_back(temp_remaining_wts);
+        temp_remaining_ttses.push_back(temp_remaining_tts);
+        temp_remaining_arr_and_depar_times.push_back(temp_remaining_arr_and_depar_time);
+    }
+    this->robots_remaining_vps = temp_remaining_vpses;
+    this->robots_remaining_wts = temp_remaining_wtses;
+    this->robots_remaining_tts = temp_remaining_ttses;
+    this->robots_remaining_arr_and_depar_times = temp_remaining_arr_and_depar_times;
+
+    for (int i = 0; i < this->robots_remaining_vps.size(); i++) {
+        if (this->robots_remaining_vps[i].size() == 0) {
+            return;
+        }
+    }
+
+    //init arrive time
+    this->InitArriveTimes();
+    this->FillArriveTimes();
+
+
+    //cut
+
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> temp_cFun;
+        std::vector<int> remaining_vps =  this->robots_remaining_vps[i];
+        for (int j = 0; j < remaining_vps.size(); j++) {
+            if (this->needToStop(i + 1, remaining_vps[j])) {
+                break;
+            }
+            if (j > 0 && this->needToStopByCross(i + 1, remaining_vps[j], remaining_vps[j - 1])) {
+                break;
+            }
+            temp_cFun.push_back(remaining_vps[j]);
+        }
+        this->robots_cFun[i] = temp_cFun;
+    }
+
+    //change to string
+    std::vector<std::string> cfuns_str;
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> tempCFun = this->robots_cFun[i];
+        std::string cfun_str = "";
+        for (int j = 0 ; j < tempCFun.size(); j++) {
+            cfun_str += std::to_string(tempCFun[j]);
+            if (j < tempCFun.size() - 1) {
+                cfun_str += "|";
+            }
+        }
+
+        cfuns_str.push_back(cfun_str);
+    }
+    this->robots_cFun_str = cfuns_str;
+
+    //lock occupied area
+    for (int i = 0; i < this->robot_number; i++) {
+        std::vector<int> tempCFun = this->robots_cFun[i];
+        for (int j = 0; j < tempCFun.size(); j++) {
+            int node_id = tempCFun[j];
+            std::vector<int> locks = this->lock_node_list[node_id];
+            //locks.push_back(node_id);
+            for (int k = 0; k < locks.size(); k++) {
+                this->occupied[locks[k]] = i + 1;
+            }
+        }
+    }
+
+    //print cfuns
+    for (int i = 0; i < this->robot_number; i++) {
+        std::cout << "Robot ID : " << i + 1 << std::endl;
+        std::cout << "Robot CFun : " << this->robots_cFun_str[i] << std::endl;
+        std::cout << "\n";
+
+    }
+
+
+
+    return;
+}
+
+void Mapper::StoreRobotCFuns() {
+    for (int i = 0; i < this->robot_number; i++) {
+        redisReply * reply = (redisReply *)redisCommand(ctx, "HSET robot_cFuns %d %s", i + 1, this->robots_cFun_str[i].c_str());
+        freeReplyObject(reply);
+    }
+}
+
+
+void Mapper::StoreOccupiedArea() {
+    std::string s = "";
+    for (int i = 0; i < this->occupied.size(); i++) {
+        s += std::to_string(i);
+        s += ",";
+        s += std::to_string(this->occupied[i]);
+        if (i < this->occupied.size() - 1) {
+            s += "|";
+        }
+    }
+    redisReply * reply = (redisReply *)redisCommand(ctx, "SET mapper_occupied_area %s", s.c_str());
+    freeReplyObject(reply);
+}
+
+void Mapper::RetriveRandomNumber() {
+    redisReply * reply = (redisReply *)redisCommand(ctx, "GET randomNumber");
+    std::string randomNumberStr = reply->str;
+    this->randomNumber = this->str2int(randomNumberStr);
+    freeReplyObject(reply);
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,202 @@
+#include "polygonalmesh.h"
+
+
+
+PolygonalMesh::PolygonalMesh()
+{
+	searchKeySeed=1;
+}
+PolygonalMesh::~PolygonalMesh()
+{
+	CleanUp();
+}
+void PolygonalMesh::CleanUp(void)
+{
+	vtxList.clear();
+}
+
+long long int PolygonalMesh::GetNumVertex(void) const
+{
+	return vtxList.size();
+}
+
+PolygonalMesh::VertexHandle PolygonalMesh::FindFirstVertex(void) const
+{
+	VertexHandle vtHd;
+	vtHd.iter=vtxList.begin();
+	return vtHd;
+}
+
+PolygonalMesh::VertexHandle PolygonalMesh::FindNextVertex(VertexHandle vtHd) const
+{
+	if(vtxList.end()!=vtHd.iter)
+	{
+		++vtHd.iter;
+		return vtHd;
+	}
+	return NullVertex();
+}
+
+PolygonalMesh::VertexHandle PolygonalMesh::AddVertex(const YsVec3 &pos)
+{
+	Vertex vtx;
+	vtx.pos=pos;
+	vtx.searchKey=searchKeySeed++;
+	vtxList.push_back(vtx);
+
+	VertexHandle vtHd;
+	vtHd.iter=vtxList.end();
+	--vtHd.iter;
+
+	vtxSearch[vtx.searchKey]=vtHd;
+
+	return vtHd;
+}
+
+unsigned int PolygonalMesh::GetSearchKey(VertexHandle vtHd) const
+{
+	if(NullVertex()!=vtHd)
+	{
+		return vtHd.iter->searchKey;
+	}
+	return NullSearchKey;
+}
+
+PolygonalMesh::VertexHandle PolygonalMesh::FindVertex(unsigned int searchKey) const
+{
+	auto found=vtxSearch.find(searchKey);
+	if(vtxSearch.end()!=found)
+	{
+		return found->second;
+	}
+	return NullVertex();
+}
+
+PolygonalMesh::VertexHandle PolygonalMesh::NullVertex(void) const
+{
+	VertexHandle vtHd;
+	vtHd.iter=vtxList.end();
+	return vtHd;
+}
+
+YsVec3 PolygonalMesh::GetVertexPosition(VertexHandle vtHd) const
+{
+	if(NullVertex()!=vtHd)
+	{
+		return vtHd.iter->pos;
+	}
+	else
+	{
+		return YsVec3::Origin();
+	}
+}
+
+
+long long int PolygonalMesh::GetNumPolygon(void) const
+{
+	return plgList.size();
+}
+
+PolygonalMesh::PolygonHandle PolygonalMesh::FindFirstPolygon(void) const
+{
+	PolygonHandle plHd;
+	plHd.iter=plgList.begin();
+	return plHd;
+}
+
+PolygonalMesh::PolygonHandle PolygonalMesh::FindNextPolygon(PolygonHandle plHd) const
+{
+	if(plgList.end()!=plHd.iter)
+	{
+		++plHd.iter;
+		return plHd;
+	}
+	return NullPolygon();
+}
+PolygonalMesh::PolygonHandle PolygonalMesh::AddPolygon(long long int nVtx,const VertexHandle vtHdAry[])
+{
+	Polygon plg;
+	plg.vtHdAry.resize(nVtx);
+	for(int i=0; i<nVtx; ++i)
+	{
+		plg.vtHdAry[i]=vtHdAry[i];
+	}
+	plg.nom=YsVec3::Origin();
+	plg.searchKey=searchKeySeed++;
+
+	plgList.push_back((Polygon &&)plg);
+
+	PolygonHandle plHd;
+	plHd.iter=plgList.end();
+	--plHd.iter;
+
+	plgSearch[plg.searchKey]=plHd;
+
+	for(int i=0; i<nVtx; ++i)
+	{
+		vtxToPlg[GetSearchKey(vtHdAry[i])].push_back(plHd);
+	}
+
+	return plHd;
+}
+void PolygonalMesh::SetPolygonNormal(PolygonHandle plHd,const YsVec3 &nom)
+{
+	if(plHd!=NullPolygon())
+	{
+		plHd.iter->nom=nom;
+	}
+}
+
+unsigned int PolygonalMesh::GetSearchKey(PolygonHandle plHd) const
+{
+	if(NullPolygon()!=plHd)
+	{
+		return plHd.iter->searchKey;
+	}
+	return NullSearchKey;
+}
+
+PolygonalMesh::PolygonHandle PolygonalMesh::FindPolygon(unsigned int searchKey) const
+{
+	auto found=plgSearch.find(searchKey);
+	if(plgSearch.end()!=found)
+	{
+		return found->second;
+	}
+	return NullPolygon();
+}
+
+PolygonalMesh::PolygonHandle PolygonalMesh::NullPolygon(void) const
+{
+	PolygonHandle plHd;
+	plHd.iter=plgList.end();
+	return plHd;
+}
+std::vector <PolygonalMesh::VertexHandle> PolygonalMesh::GetPolygonVertex(PolygonHandle plHd) const
+{
+	if(NullPolygon()!=plHd)
+	{
+		return plHd.iter->vtHdAry;
+	}
+	std::vector <PolygonalMesh::VertexHandle> empty;
+	return empty;
+}
+YsVec3 PolygonalMesh::GetNormal(PolygonHandle plHd) const
+{
+	if(NullPolygon()!=plHd)
+	{
+		return plHd.iter->nom;
+	}
+	return YsVec3::Origin();
+}
+
+std::vector <PolygonalMesh::PolygonHandle> PolygonalMesh::FindPolygonFromVertex(VertexHandle vtHd) const
+{
+	auto found=vtxToPlg.find(GetSearchKey(vtHd));
+	if(vtxToPlg.end()!=found)
+	{
+		return found->second;
+	}
+	std::vector <PolygonHandle> empty;
+	return empty;
+}

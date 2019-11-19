@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/t77Server.dir/main.cpp.o CMakeFiles/t77Server.dir/bioshook_small.cpp.o CMakeFiles/t77Server.dir/bioshook_buffered.cpp.o  -o ../../../../../exe/t77Server ../t77/libt77lib.a ../lib/yscomport/libcomportlib.a ../lib/libfm7lib.a -lpthread 

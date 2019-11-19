@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/t77dump.dir/t77dump.cpp.o  -o ../../../../../exe/t77dump ../lib/libfm7lib.a libt77lib.a ../lib/libfm7lib.a 

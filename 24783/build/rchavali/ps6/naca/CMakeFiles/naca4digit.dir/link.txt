@@ -1,0 +1,2 @@
+/usr/bin/ar qc libnaca4digit.a  CMakeFiles/naca4digit.dir/naca4digit.cpp.o
+/usr/bin/ranlib libnaca4digit.a

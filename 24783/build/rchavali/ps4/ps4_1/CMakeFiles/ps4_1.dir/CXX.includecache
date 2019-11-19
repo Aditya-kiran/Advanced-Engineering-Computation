@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aditya/24783/src/rchavali/ps4/ps4_1/main.cpp
+simplebitmap.h
+/home/aditya/24783/src/rchavali/ps4/ps4_1/simplebitmap.h
+iostream
+-
+
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmap.h
+stdio.h
+-
+simplebitmaptemplate.h
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmaptemplate.h
+
+/home/aditya/24783/src/rchavali/simplebitmap/./simplebitmaptemplate.h
+

@@ -1,0 +1,10 @@
+add_library(plgmeshlib polygonalmesh.cpp polygonalmesh.h)
+target_link_libraries(plgmeshlib ysclass latticeutil)
+target_include_directories(plgmeshlib PUBLIC .)
+
+add_executable(plgmesh main.cpp binstl.cpp binstl.h)
+target_link_libraries(plgmesh fslazywindow ysclass plgmeshlib glutil)
+
+add_executable(plgmeshtest testmain.cpp)
+target_link_libraries(plgmeshtest ysclass plgmeshlib)
+

@@ -1,0 +1,27 @@
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+cmake_minimum_required(VERSION 3.5)
+
+PROJECT(flythrough)
+
+
+INCLUDE_DIRECTORIES(
+include
+)
+
+
+AUX_SOURCE_DIRECTORY(src DIR_SRCS)
+
+
+SET(TEST_MATH
+${DIR_SRCS}
+)
+
+ADD_EXECUTABLE(${PROJECT_NAME} ${TEST_MATH})
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} hiredis fslazywindow)
+
+
+
+#add_executable(flythrough MACOSX_BUNDLE main.cpp)
+#target_link_libraries(flythrough fslazywindow hiredis)

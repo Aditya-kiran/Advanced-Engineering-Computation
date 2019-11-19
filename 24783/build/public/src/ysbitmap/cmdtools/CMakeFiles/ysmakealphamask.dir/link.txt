@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wl,--no-as-needed  -rdynamic CMakeFiles/ysmakealphamask.dir/ysmakealphamask.cpp.o  -o ../../../../exe/ysmakealphamask ../../ysclass/src/libysclass.a ../src/libysbitmap.a -lpthread -static-libstdc++ -static-libgcc 
